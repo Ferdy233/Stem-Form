@@ -90,6 +90,23 @@ router.post('/verify', async (req, res) => {
     const regId = reference
     const amountPaid = data.data.amount / 100
 
+    console.log('Inserting registration:', {
+      regId,
+      regIdLength: regId?.length,
+      gender: d.gender,
+      genderLength: d.gender?.length,
+      previousSTEM: d.previousSTEM,
+      previousSTEMLength: d.previousSTEM?.length,
+      experienceLevel: d.experienceLevel,
+      experienceLevelLength: d.experienceLevel?.length,
+      attendanceDays: d.attendanceDays,
+      attendanceDaysLength: d.attendanceDays?.length,
+      yearsOfExperience: d.yearsOfExperience,
+      yearsOfExperienceLength: d.yearsOfExperience?.length,
+      participantCategory: d.participantCategory,
+      participantCategoryLength: d.participantCategory?.length,
+    })
+
     const result = await query(
       `INSERT INTO registrations (
         registration_id, full_name, preferred_name, gender, date_of_birth,

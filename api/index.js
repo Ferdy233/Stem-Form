@@ -15,13 +15,6 @@ app.use(cors({
 }))
 app.use(express.json())
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Appipa STEM Registration API' })
-})
-
-app.use('/api/register', registrationRoutes)
-app.use('/api/payment', paymentRoutes)
-
 // Initialize DB on cold start
 let _dbInitialized = false
 async function ensureDB() {
@@ -29,8 +22,10 @@ async function ensureDB() {
     try {
       await initDB()
       _dbInitialized = true
+      console.log('DB initialized successfully on cold start')
     } catch (err) {
       console.error('DB init error:', err.message)
+      _dbInitialized = true // Don't keep retrying on every request
     }
   }
 }
@@ -40,5 +35,12 @@ app.use('/api', async (req, res, next) => {
   await ensureDB()
   next()
 })
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Appipa STEM Registration API' })
+})
+
+app.use('/api/register', registrationRoutes)
+app.use('/api/payment', paymentRoutes)
 
 export default app
