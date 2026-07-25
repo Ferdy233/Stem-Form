@@ -8,7 +8,7 @@ import Step4SlotBooking from './steps/Step4SlotBooking'
 import Step5Payment from './steps/Step5Payment'
 import Step6Confirmation from './steps/Step6Confirmation'
 
-const PAYSTACK_PUBLIC_KEY = 'pk_test_aa6b6763d1c6dfe3e812692236a89386ee97cf3c'
+const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_aa6b6763d1c6dfe3e812692236a89386ee97cf3c'
 
 const PRICING = {
   '17-aug-morning':   { label: '17 Aug — Morning (9:00 AM – 12:00 PM)',   price: 200, kobo: 20000 },
