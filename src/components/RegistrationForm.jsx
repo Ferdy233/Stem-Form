@@ -11,10 +11,10 @@ import Step6Confirmation from './steps/Step6Confirmation'
 const PAYSTACK_PUBLIC_KEY = 'pk_test_aa6b6763d1c6dfe3e812692236a89386ee97cf3c'
 
 const PRICING = {
-  '17-aug-morning':   { label: '17 Aug — Morning (9:00 AM – 12:00 PM)',   price: 100, kobo: 10000 },
-  '17-aug-afternoon': { label: '17 Aug — Afternoon (1:00 PM – 3:00 PM)',  price: 100, kobo: 10000 },
-  '18-aug-morning':   { label: '18 Aug — Morning (9:00 AM – 12:00 PM)',   price: 100, kobo: 10000 },
-  '18-aug-afternoon': { label: '18 Aug — Afternoon (1:00 PM – 3:00 PM)',  price: 100, kobo: 10000 },
+  '17-aug-morning':   { label: '17 Aug — Morning (9:00 AM – 12:00 PM)',   price: 200, kobo: 20000 },
+  '17-aug-afternoon': { label: '17 Aug — Afternoon (1:00 PM – 3:00 PM)',  price: 200, kobo: 20000 },
+  '18-aug-morning':   { label: '18 Aug — Morning (9:00 AM – 12:00 PM)',   price: 200, kobo: 20000 },
+  '18-aug-afternoon': { label: '18 Aug — Afternoon (1:00 PM – 3:00 PM)',  price: 200, kobo: 20000 },
 }
 
 const INITIAL_DATA = {

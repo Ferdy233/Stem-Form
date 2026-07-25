@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { Users, Check, Clock, Calendar } from 'lucide-react'
 
 const SLOTS = [
-  { value: '17-aug-morning',   day: 'Day 1 — 17 August 2026', time: '9:00 AM – 12:00 PM',  period: 'Morning',   price: 100 },
-  { value: '17-aug-afternoon', day: 'Day 1 — 17 August 2026', time: '1:00 PM – 3:00 PM',   period: 'Afternoon', price: 100 },
-  { value: '18-aug-morning',   day: 'Day 2 — 18 August 2026', time: '9:00 AM – 12:00 PM',  period: 'Morning',   price: 100 },
-  { value: '18-aug-afternoon', day: 'Day 2 — 18 August 2026', time: '1:00 PM – 3:00 PM',   period: 'Afternoon', price: 100 },
+  { value: '17-aug-morning',   day: 'Day 1 — 17 August 2026', time: '9:00 AM – 12:00 PM',  period: 'Morning',   price: 200 },
+  { value: '17-aug-afternoon', day: 'Day 1 — 17 August 2026', time: '1:00 PM – 3:00 PM',   period: 'Afternoon', price: 200 },
+  { value: '18-aug-morning',   day: 'Day 2 — 18 August 2026', time: '9:00 AM – 12:00 PM',  period: 'Morning',   price: 200 },
+  { value: '18-aug-afternoon', day: 'Day 2 — 18 August 2026', time: '1:00 PM – 3:00 PM',   period: 'Afternoon', price: 200 },
 ]
 
 const TOTAL_SEATS = 50

@@ -4,10 +4,10 @@ import { query } from '../db.js'
 const router = Router()
 
 const PRICING = {
-  '17-aug-morning': 10000,
-  '17-aug-afternoon': 10000,
-  '18-aug-morning': 10000,
-  '18-aug-afternoon': 10000,
+  '17-aug-morning': 20000,
+  '17-aug-afternoon': 20000,
+  '18-aug-morning': 20000,
+  '18-aug-afternoon': 20000,
 }
 
 function generateRegId() {

@@ -6,6 +6,7 @@ const cors = (await import('cors')).default
 const { initDB } = await import('./db.js')
 const registrationRoutes = (await import('./routes/registration.js')).default
 const paymentRoutes = (await import('./routes/payment.js')).default
+const adminRoutes = (await import('./routes/admin.js')).default
 
 const app = express()
 
@@ -21,6 +22,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/register', registrationRoutes)
 app.use('/api/payment', paymentRoutes)
+app.use('/api/admin', adminRoutes)
 
 const PORT = process.env.PORT || 5000
 

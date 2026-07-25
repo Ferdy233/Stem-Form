@@ -8,10 +8,10 @@ const PAYSTACK_BASE = 'https://api.paystack.co/transaction'
 function getSecretKey() { return process.env.PAYSTACK_SECRET_KEY }
 
 const PRICING = {
-  '17-aug-morning': 10000,
-  '17-aug-afternoon': 10000,
-  '18-aug-morning': 10000,
-  '18-aug-afternoon': 10000,
+  '17-aug-morning': 20000,
+  '17-aug-afternoon': 20000,
+  '18-aug-morning': 20000,
+  '18-aug-afternoon': 20000,
 }
 
 router.post('/initialize', async (req, res) => {

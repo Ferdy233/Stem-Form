@@ -6,6 +6,7 @@ import cors from 'cors'
 import { initDB } from '../server/db.js'
 import registrationRoutes from '../server/routes/registration.js'
 import paymentRoutes from '../server/routes/payment.js'
+import adminRoutes from '../server/routes/admin.js'
 
 const app = express()
 
@@ -42,5 +43,6 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/register', registrationRoutes)
 app.use('/api/payment', paymentRoutes)
+app.use('/api/admin', adminRoutes)
 
 export default app
