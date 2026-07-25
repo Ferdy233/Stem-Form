@@ -57,7 +57,7 @@ export default function Landing({ onRegister }) {
               <ArrowRight className="h-4 w-4" />
             </button>
             <p className="mt-2 text-xs text-stone-400">
-              Limited seats · GHS 100 per session · Registration confirms your slot
+              Limited seats · GHS 200 per session · Registration confirms your slot
             </p>
           </div>
         </div>
