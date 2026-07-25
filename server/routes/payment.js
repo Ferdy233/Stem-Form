@@ -74,11 +74,14 @@ router.post('/verify', async (req, res) => {
 
     const data = await response.json()
 
+    console.log('Paystack verify response:', JSON.stringify(data))
+    console.log('Secret key present:', !!getSecretKey())
+
     if (!data.status || data.data.status !== 'success') {
       return res.status(400).json({
         success: false,
         error: 'Payment verification failed',
-        status: data.data?.status || 'unknown',
+        status: data.data?.status || data.message || 'unknown',
       })
     }
 

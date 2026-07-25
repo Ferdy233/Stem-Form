@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS registrations (
   id SERIAL PRIMARY KEY,
-  registration_id VARCHAR(20) UNIQUE NOT NULL,
+  registration_id VARCHAR(50) UNIQUE NOT NULL,
   full_name VARCHAR(255) NOT NULL,
   preferred_name VARCHAR(255) NOT NULL,
   gender VARCHAR(20) NOT NULL,

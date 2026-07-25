@@ -32,7 +32,7 @@ export async function initDB() {
     await query(`
       CREATE TABLE IF NOT EXISTS registrations (
         id SERIAL PRIMARY KEY,
-        registration_id VARCHAR(20) UNIQUE NOT NULL,
+        registration_id VARCHAR(50) UNIQUE NOT NULL,
         full_name VARCHAR(255) NOT NULL,
         preferred_name VARCHAR(255) NOT NULL,
         gender VARCHAR(20) NOT NULL,
@@ -68,6 +68,8 @@ export async function initDB() {
     await query(`CREATE INDEX IF NOT EXISTS idx_registrations_payment_status ON registrations(payment_status);`)
     // Drop current_position column if it exists (removed from form)
     await query(`ALTER TABLE registrations DROP COLUMN IF EXISTS current_position;`)
+    // Resize registration_id to accommodate Paystack references
+    await query(`ALTER TABLE registrations ALTER COLUMN registration_id TYPE VARCHAR(50);`)
     console.log('Database initialized successfully')
   } catch (err) {
     console.error('Database init error:', err.message)
