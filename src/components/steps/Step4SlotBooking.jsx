@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Users, Check, Clock, Calendar } from 'lucide-react'
+import React from 'react'
+import { Check, Clock, Calendar } from 'lucide-react'
 
 const SLOTS = [
   { value: '17-aug-morning',   day: 'Day 1 — 17 August 2026', time: '9:00 AM – 12:00 PM',  period: 'Morning',   price: 200 },
@@ -8,38 +8,19 @@ const SLOTS = [
   { value: '18-aug-afternoon', day: 'Day 2 — 18 August 2026', time: '1:00 PM – 3:00 PM',   period: 'Afternoon', price: 200 },
 ]
 
-const TOTAL_SEATS = 50
-
 export default function Step4SlotBooking({ data, errors, onChange }) {
-  const [bookedCounts, setBookedCounts] = useState({})
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetch('/api/register/slots')
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success) setBookedCounts(d.slots)
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
-  }, [])
-
   return (
     <div className="animate-fade-in space-y-5">
       <div>
         <h3 className="text-lg font-bold text-stone-800">Slot Booking</h3>
         <p className="text-sm text-stone-500 mt-1">
-          Select one session to attend. Each session has 50 seats. Booking is confirmed upon payment.
+          Select one session to attend. Booking is confirmed upon payment.
         </p>
       </div>
 
       <div className="grid gap-3">
         {SLOTS.map((slot) => {
-          const booked = bookedCounts[slot.value] || 0
-          const seatsLeft = TOTAL_SEATS - booked
-          const fillPercent = (booked / TOTAL_SEATS) * 100
           const isSelected = data.attendanceDays === slot.value
-          const isFull = seatsLeft <= 0
 
           return (
             <label
@@ -48,8 +29,6 @@ export default function Step4SlotBooking({ data, errors, onChange }) {
                 'relative cursor-pointer rounded-lg border-2 p-4 transition-all duration-200 ' +
                 (isSelected
                   ? 'border-stone-900 bg-stone-50'
-                  : isFull
-                  ? 'border-stone-200 bg-stone-100 opacity-60 cursor-not-allowed'
                   : 'border-stone-200 bg-white hover:border-stone-400')
               }
             >
@@ -74,14 +53,6 @@ export default function Step4SlotBooking({ data, errors, onChange }) {
                       <Clock className="h-3.5 w-3.5 shrink-0 text-stone-400" />
                       <span className="text-xs sm:text-sm font-medium text-stone-600">{slot.period} — {slot.time}</span>
                     </div>
-                    <div className="mt-1.5 flex items-center gap-2 text-xs text-stone-500">
-                      <Users className="h-3.5 w-3.5 shrink-0" />
-                      {isFull ? (
-                        <span className="font-semibold text-red-500">Fully booked</span>
-                      ) : (
-                        <span>{seatsLeft} seat{seatsLeft !== 1 ? 's' : ''} left</span>
-                      )}
-                    </div>
                   </div>
                 </div>
                 <div className="text-right shrink-0">
@@ -89,33 +60,14 @@ export default function Step4SlotBooking({ data, errors, onChange }) {
                 </div>
               </div>
 
-              {!isFull && (
-                <input
-                  type="radio"
-                  name="attendanceDays"
-                  value={slot.value}
-                  checked={isSelected}
-                  onChange={onChange}
-                  className="sr-only"
-                  disabled={isFull}
-                />
-              )}
-
-              {/* Seat availability bar */}
-              <div className="mt-3">
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-stone-200">
-                  <div
-                    className={
-                      'h-full rounded-full transition-all ' +
-                      (fillPercent >= 100 ? 'bg-red-500' : fillPercent > 80 ? 'bg-amber-500' : 'bg-green-600')
-                    }
-                    style={{ width: `${fillPercent}%` }}
-                  />
-                </div>
-                <p className="mt-1 text-xs text-stone-400">
-                  {booked} / {TOTAL_SEATS} booked
-                </p>
-              </div>
+              <input
+                type="radio"
+                name="attendanceDays"
+                value={slot.value}
+                checked={isSelected}
+                onChange={onChange}
+                className="sr-only"
+              />
             </label>
           )
         })}
