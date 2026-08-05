@@ -65,40 +65,46 @@ router.get('/export', async (req, res) => {
       return str
     }
 
+    const escapeAsText = (val) => {
+      if (val === null || val === undefined) return ''
+      const str = String(val).replace(/"/g, '""')
+      return `="${str}"`
+    }
+
     const csvLines = [headers.join(',')]
 
     rows.forEach((row) => {
       const attendanceLabel = SLOT_LABELS[row.attendance_days] || row.attendance_days
       const csvRow = [
-        row.registration_id,
-        row.full_name,
-        row.preferred_name,
-        row.gender,
-        row.date_of_birth ? new Date(row.date_of_birth).toISOString().split('T')[0] : '',
-        row.mobile_number,
-        row.email,
-        row.residential_address,
-        row.organisation,
-        row.region_city,
-        row.years_of_experience,
-        row.website_social,
-        row.participant_category,
-        row.other_category,
-        row.previous_stem,
-        row.experience_level,
-        row.current_programmes,
-        row.expected_outcomes,
-        row.application_plan,
-        attendanceLabel,
-        row.confirm_accurate ? 'Yes' : 'No',
-        row.understand_not_guaranteed ? 'Yes' : 'No',
-        row.agree_participate ? 'Yes' : 'No',
-        row.consent_photo ? 'Yes' : 'No',
-        row.payment_status,
-        row.payment_reference,
-        row.amount_paid,
-        row.created_at ? new Date(row.created_at).toISOString() : '',
-      ].map(escapeCSV).join(',')
+        escapeCSV(row.registration_id),
+        escapeCSV(row.full_name),
+        escapeCSV(row.preferred_name),
+        escapeCSV(row.gender),
+        escapeCSV(row.date_of_birth ? new Date(row.date_of_birth).toISOString().split('T')[0] : ''),
+        escapeAsText(row.mobile_number),
+        escapeCSV(row.email),
+        escapeCSV(row.residential_address),
+        escapeCSV(row.organisation),
+        escapeCSV(row.region_city),
+        escapeCSV(row.years_of_experience),
+        escapeCSV(row.website_social),
+        escapeCSV(row.participant_category),
+        escapeCSV(row.other_category),
+        escapeCSV(row.previous_stem),
+        escapeCSV(row.experience_level),
+        escapeCSV(row.current_programmes),
+        escapeCSV(row.expected_outcomes),
+        escapeCSV(row.application_plan),
+        escapeCSV(attendanceLabel),
+        escapeCSV(row.confirm_accurate ? 'Yes' : 'No'),
+        escapeCSV(row.understand_not_guaranteed ? 'Yes' : 'No'),
+        escapeCSV(row.agree_participate ? 'Yes' : 'No'),
+        escapeCSV(row.consent_photo ? 'Yes' : 'No'),
+        escapeCSV(row.payment_status),
+        escapeCSV(row.payment_reference),
+        escapeCSV(row.amount_paid),
+        escapeCSV(row.created_at ? new Date(row.created_at).toISOString() : ''),
+      ].join(',')
       csvLines.push(csvRow)
     })
 
