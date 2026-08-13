@@ -79,7 +79,7 @@ router.get('/slots', async (req, res) => {
       counts[row.attendance_days] = parseInt(row.booked)
     })
 
-    res.json({ success: true, slots: counts, totalSeats: 50 })
+    res.json({ success: true, slots: counts, totalSeats: 30 })
   } catch (err) {
     res.status(500).json({ success: false, error: err.message })
   }
