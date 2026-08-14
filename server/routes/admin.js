@@ -120,6 +120,54 @@ router.get('/export', async (req, res) => {
   }
 })
 
+router.get('/contacts', async (req, res) => {
+  try {
+    const token = req.query.token || req.headers.authorization?.replace('Bearer ', '')
+    if (token !== ADMIN_TOKEN) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    const result = await query(
+      `SELECT full_name, mobile_number FROM registrations WHERE payment_status = 'paid' ORDER BY created_at ASC`
+    )
+
+    const escapeAsText = (val) => {
+      if (val === null || val === undefined) return ''
+      const str = String(val).replace(/"/g, '""')
+      return `="${str}"`
+    }
+
+    const escapeCSV = (val) => {
+      if (val === null || val === undefined) return ''
+      const str = String(val)
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`
+      }
+      return str
+    }
+
+    const headers = ['Full Name', 'Mobile Number']
+    const csvLines = [headers.join(',')]
+
+    result.rows.forEach((row) => {
+      csvLines.push([
+        escapeCSV(row.full_name),
+        escapeAsText(row.mobile_number),
+      ].join(','))
+    })
+
+    const csv = csvLines.join('\n')
+    const dateStr = new Date().toISOString().split('T')[0]
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8')
+    res.setHeader('Content-Disposition', `attachment; filename="contacts-${dateStr}.csv"`)
+    res.send(csv)
+  } catch (err) {
+    console.error('Contacts export error:', err)
+    res.status(500).json({ success: false, error: err.message })
+  }
+})
+
 router.get('/stats', async (req, res) => {
   try {
     const token = req.query.token || req.headers.authorization?.replace('Bearer ', '')
