@@ -127,9 +127,18 @@ router.get('/contacts', async (req, res) => {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
-    const result = await query(
-      `SELECT full_name, mobile_number FROM registrations WHERE payment_status = 'paid' ORDER BY created_at ASC`
-    )
+    const slot = req.query.slot
+    let queryText = `SELECT full_name, mobile_number FROM registrations WHERE payment_status = 'paid'`
+    const params = []
+
+    if (slot) {
+      queryText += ` AND attendance_days = $1`
+      params.push(slot)
+    }
+
+    queryText += ` ORDER BY created_at ASC`
+
+    const result = await query(queryText, params)
 
     const escapeAsText = (val) => {
       if (val === null || val === undefined) return ''
