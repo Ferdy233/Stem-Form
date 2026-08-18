@@ -120,6 +120,49 @@ router.get('/export', async (req, res) => {
   }
 })
 
+router.get('/today', async (req, res) => {
+  try {
+    const token = req.query.token || req.headers.authorization?.replace('Bearer ', '')
+    if (token !== ADMIN_TOKEN) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    const today = new Date().toISOString().split('T')[0]
+    const result = await query(
+      `SELECT full_name, mobile_number, email, attendance_days, created_at
+       FROM registrations
+       WHERE payment_status = 'paid'
+       AND DATE(created_at) = $1
+       ORDER BY attendance_days, created_at ASC`,
+      [today]
+    )
+
+    const grouped = {
+      '17-aug-morning': [],
+      '17-aug-afternoon': [],
+      '18-aug-morning': [],
+      '18-aug-afternoon': [],
+    }
+
+    result.rows.forEach((row) => {
+      const slot = row.attendance_days
+      if (grouped[slot]) {
+        grouped[slot].push({
+          name: row.full_name,
+          phone: row.mobile_number,
+          email: row.email,
+          time: new Date(row.created_at).toLocaleTimeString(),
+        })
+      }
+    })
+
+    res.json({ success: true, date: today, grouped })
+  } catch (err) {
+    console.error('Today export error:', err)
+    res.status(500).json({ success: false, error: err.message })
+  }
+})
+
 router.get('/contacts', async (req, res) => {
   try {
     const token = req.query.token || req.headers.authorization?.replace('Bearer ', '')
