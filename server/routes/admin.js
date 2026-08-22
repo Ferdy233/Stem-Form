@@ -3,11 +3,11 @@ import { query } from '../db.js'
 
 const router = Router()
 
-const SLOT_LABELS = {
-  '17-aug-morning': '17 Aug — Morning (9:00 AM – 12:00 PM)',
-  '17-aug-afternoon': '17 Aug — Afternoon (1:00 PM – 3:00 PM)',
-  '18-aug-morning': '18 Aug — Morning (9:00 AM – 12:00 PM)',
-  '18-aug-afternoon': '18 Aug — Afternoon (1:00 PM – 3:00 PM)',
+const PROGRAMME_LABELS = {
+  'weekend_robotics': 'Weekend Robotics & Coding Class',
+  'saturday_online': 'Saturday Online Class',
+  'holiday_intensive': 'Holiday / Intensive STEM Programme',
+  'other': 'Other',
 }
 
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'appipa-admin-2026'
@@ -27,29 +27,41 @@ router.get('/export', async (req, res) => {
 
     const headers = [
       'Registration ID',
-      'Full Name',
-      'Preferred Name',
-      'Gender',
+      'Student Full Name',
       'Date of Birth',
-      'Mobile Number',
-      'Email',
-      'Residential Address',
-      'Organisation',
-      'Region/City',
-      'Years of Experience',
-      'Website/Social',
-      'Participant Category',
-      'Other Category',
-      'Previous STEM',
-      'Experience Level',
-      'Current Programmes',
-      'Expected Outcomes',
-      'Application Plan',
-      'Attendance Days',
-      'Confirm Accurate',
-      'Understand Not Guaranteed',
-      'Agree Participate',
-      'Consent Photo',
+      'Age',
+      'Gender',
+      'School',
+      'Class/Grade',
+      'Nationality',
+      'Home Address',
+      'Parent Full Name',
+      'Parent Relationship',
+      'Primary Phone',
+      'Alternative Phone',
+      'Parent Email',
+      'Parent Address',
+      'Emergency Name',
+      'Emergency Phone',
+      'Emergency Relationship',
+      'Medical Notes',
+      'Programme Type',
+      'Programme Other',
+      'Preferred Start Date',
+      'Preferred Mode',
+      'Previous Experience',
+      'Interests',
+      'Student Goals',
+      'Learning Preferences',
+      'Pickup Person 1',
+      'Pickup Phone 1',
+      'Pickup Person 2',
+      'Pickup Phone 2',
+      'May Leave Alone',
+      'Consent Declaration',
+      'Consent Media',
+      'Consent Communication',
+      'Payment Option',
       'Payment Status',
       'Payment Reference',
       'Amount Paid (GHS)',
@@ -74,32 +86,44 @@ router.get('/export', async (req, res) => {
     const csvLines = [headers.join(',')]
 
     rows.forEach((row) => {
-      const attendanceLabel = SLOT_LABELS[row.attendance_days] || row.attendance_days
+      const programmeLabel = PROGRAMME_LABELS[row.programme_type] || row.programme_type
       const csvRow = [
         escapeCSV(row.registration_id),
-        escapeCSV(row.full_name),
-        escapeCSV(row.preferred_name),
-        escapeCSV(row.gender),
+        escapeCSV(row.student_full_name),
         escapeCSV(row.date_of_birth ? new Date(row.date_of_birth).toISOString().split('T')[0] : ''),
-        escapeAsText(row.mobile_number),
-        escapeCSV(row.email),
-        escapeCSV(row.residential_address),
-        escapeCSV(row.organisation),
-        escapeCSV(row.region_city),
-        escapeCSV(row.years_of_experience),
-        escapeCSV(row.website_social),
-        escapeCSV(row.participant_category),
-        escapeCSV(row.other_category),
-        escapeCSV(row.previous_stem),
-        escapeCSV(row.experience_level),
-        escapeCSV(row.current_programmes),
-        escapeCSV(row.expected_outcomes),
-        escapeCSV(row.application_plan),
-        escapeCSV(attendanceLabel),
-        escapeCSV(row.confirm_accurate ? 'Yes' : 'No'),
-        escapeCSV(row.understand_not_guaranteed ? 'Yes' : 'No'),
-        escapeCSV(row.agree_participate ? 'Yes' : 'No'),
-        escapeCSV(row.consent_photo ? 'Yes' : 'No'),
+        escapeCSV(row.age),
+        escapeCSV(row.gender),
+        escapeCSV(row.school),
+        escapeCSV(row.class_grade),
+        escapeCSV(row.nationality),
+        escapeCSV(row.home_address),
+        escapeCSV(row.parent_full_name),
+        escapeCSV(row.parent_relationship),
+        escapeAsText(row.primary_phone),
+        escapeAsText(row.alternative_phone),
+        escapeCSV(row.parent_email),
+        escapeCSV(row.parent_address),
+        escapeCSV(row.emergency_name),
+        escapeAsText(row.emergency_phone),
+        escapeCSV(row.emergency_relationship),
+        escapeCSV(row.medical_notes),
+        escapeCSV(programmeLabel),
+        escapeCSV(row.programme_other),
+        escapeCSV(row.preferred_start_date ? new Date(row.preferred_start_date).toISOString().split('T')[0] : ''),
+        escapeCSV(row.preferred_mode === 'on-site' ? 'On-site' : 'Online'),
+        escapeCSV(row.previous_experience),
+        escapeCSV(row.interests ? row.interests.join(', ') : ''),
+        escapeCSV(row.student_goals),
+        escapeCSV(row.learning_preferences),
+        escapeCSV(row.pickup_person_1),
+        escapeAsText(row.pickup_phone_1),
+        escapeCSV(row.pickup_person_2),
+        escapeAsText(row.pickup_phone_2),
+        escapeCSV(row.may_leave_alone ? 'Yes' : 'No'),
+        escapeCSV(row.consent_declaration ? 'Yes' : 'No'),
+        escapeCSV(row.consent_media ? 'Yes' : 'No'),
+        escapeCSV(row.consent_communication ? 'Yes' : 'No'),
+        escapeCSV(row.payment_option === 'pay_now' ? 'Pay Now' : 'Pay Later'),
         escapeCSV(row.payment_status),
         escapeCSV(row.payment_reference),
         escapeCSV(row.amount_paid),
@@ -229,20 +253,20 @@ router.get('/stats', async (req, res) => {
 
     const totalResult = await query(`SELECT COUNT(*) as total FROM registrations`)
     const paidResult = await query(`SELECT COUNT(*) as paid FROM registrations WHERE payment_status = 'paid'`)
-    const slotResult = await query(
-      `SELECT attendance_days, COUNT(*) as count FROM registrations WHERE payment_status = 'paid' GROUP BY attendance_days`
+    const programmeResult = await query(
+      `SELECT programme_type, COUNT(*) as count FROM registrations WHERE payment_status = 'paid' GROUP BY programme_type`
     )
 
-    const slots = {}
-    slotResult.rows.forEach((r) => {
-      slots[r.attendance_days] = parseInt(r.count)
+    const programmes = {}
+    programmeResult.rows.forEach((r) => {
+      programmes[r.programme_type] = parseInt(r.count)
     })
 
     res.json({
       success: true,
       total: parseInt(totalResult.rows[0].total),
       paid: parseInt(paidResult.rows[0].paid),
-      slots,
+      programmes,
     })
   } catch (err) {
     res.status(500).json({ success: false, error: err.message })

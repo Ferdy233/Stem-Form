@@ -2,15 +2,18 @@ import React from 'react'
 import { Check } from 'lucide-react'
 
 const STEPS = [
-  { num: 1, label: 'Participant Info' },
-  { num: 2, label: 'Professional Details' },
-  { num: 3, label: 'STEM Experience' },
-  { num: 4, label: 'Slot Booking' },
-  { num: 5, label: 'Payment' },
-  { num: 6, label: 'Confirmation' },
+  { num: 1, label: 'Student Info' },
+  { num: 2, label: 'Parent Info' },
+  { num: 3, label: 'Emergency' },
+  { num: 4, label: 'Programme' },
+  { num: 5, label: 'Interests' },
+  { num: 6, label: 'Pickup' },
+  { num: 7, label: 'Consent' },
+  { num: 8, label: 'Payment' },
+  { num: 9, label: 'Confirmation' },
 ]
 
-export default function StepIndicator({ currentStep }) {
+export default function StepIndicator({ currentStep, totalSteps = 9 }) {
   return (
     <div className="w-full">
       {/* Desktop */}
@@ -22,10 +25,10 @@ export default function StepIndicator({ currentStep }) {
                 className={
                   'flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-bold transition-all duration-300 ' +
                   (currentStep > step.num
-                    ? 'border-stone-800 bg-stone-800 text-white'
+                    ? 'border-blue-600 bg-blue-600 text-white'
                     : currentStep === step.num
-                    ? 'border-stone-800 bg-white text-stone-800 ring-4 ring-stone-200'
-                    : 'border-stone-300 bg-white text-stone-400')
+                    ? 'border-blue-600 bg-white text-blue-600 ring-4 ring-blue-200'
+                    : 'border-blue-200 bg-white text-stone-400')
                 }
               >
                 {currentStep > step.num ? (
@@ -37,7 +40,7 @@ export default function StepIndicator({ currentStep }) {
               <span
                 className={
                   'text-xs font-medium ' +
-                  (currentStep >= step.num ? 'text-stone-700' : 'text-stone-400')
+                  (currentStep >= step.num ? 'text-blue-700' : 'text-stone-400')
                 }
               >
                 {step.label}
@@ -47,7 +50,7 @@ export default function StepIndicator({ currentStep }) {
               <div
                 className={
                   'h-0.5 flex-1 mx-2 transition-all duration-300 ' +
-                  (currentStep > step.num ? 'bg-stone-800' : 'bg-stone-200')
+                  (currentStep > step.num ? 'bg-blue-600' : 'bg-blue-200')
                 }
               />
             )}
@@ -58,15 +61,15 @@ export default function StepIndicator({ currentStep }) {
       {/* Mobile */}
       <div className="md:hidden">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-bold text-stone-800">
-            Step {currentStep} of {STEPS.length}
+          <span className="text-sm font-bold text-blue-900">
+            Step {currentStep} of {totalSteps}
           </span>
           <span className="text-sm text-stone-500">{STEPS[currentStep - 1]?.label}</span>
         </div>
-        <div className="h-2 w-full overflow-hidden rounded-full bg-stone-200">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-blue-200">
           <div
-            className="h-full rounded-full bg-stone-800 transition-all duration-500"
-            style={{ width: `${(currentStep / STEPS.length) * 100}%` }}
+            className="h-full rounded-full bg-blue-600 transition-all duration-500"
+            style={{ width: `${(currentStep / totalSteps) * 100}%` }}
           />
         </div>
       </div>

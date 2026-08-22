@@ -7,23 +7,14 @@ const router = Router()
 const PAYSTACK_BASE = 'https://api.paystack.co/transaction'
 function getSecretKey() { return process.env.PAYSTACK_SECRET_KEY }
 
-const PRICING = {
-  '17-aug-morning': 20000,
-  '17-aug-afternoon': 20000,
-  '18-aug-morning': 20000,
-  '18-aug-afternoon': 20000,
-}
+const MONTHLY_FEE = 50000 // 500 GHS in kobo
 
 router.post('/initialize', async (req, res) => {
   try {
-    const { email, attendanceDays } = req.body
-    const amount = PRICING[attendanceDays] || 0
+    const { email } = req.body
+    const amount = MONTHLY_FEE
 
-    if (amount === 0) {
-      return res.status(400).json({ success: false, error: 'Invalid attendance option' })
-    }
-
-    const reference = `APP-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+    const reference = `BTL-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
 
     const response = await fetch(`${PAYSTACK_BASE}/initialize`, {
       method: 'POST',
@@ -38,7 +29,7 @@ router.post('/initialize', async (req, res) => {
         reference,
         callback_url: `${process.env.CLIENT_URL || 'http://localhost:5173'}/verify`,
         metadata: {
-          attendance_days: attendanceDays,
+          programme: 'btl_student_admission',
         },
       }),
     })
@@ -63,7 +54,7 @@ router.post('/initialize', async (req, res) => {
 
 router.post('/verify', async (req, res) => {
   try {
-    const { reference, registrationData } = req.body
+    const { reference, registrationId } = req.body
 
     const response = await fetch(`${PAYSTACK_BASE}/verify/${reference}`, {
       method: 'GET',
@@ -85,61 +76,31 @@ router.post('/verify', async (req, res) => {
       })
     }
 
-    // Payment confirmed — now save registration to DB with paid status
-    const d = registrationData
-    const regId = reference
+    // Payment confirmed — update existing registration to paid status
     const amountPaid = data.data.amount / 100
 
-    console.log('Inserting registration:', {
-      regId,
-      regIdLength: regId?.length,
-      gender: d.gender,
-      genderLength: d.gender?.length,
-      previousSTEM: d.previousSTEM,
-      previousSTEMLength: d.previousSTEM?.length,
-      experienceLevel: d.experienceLevel,
-      experienceLevelLength: d.experienceLevel?.length,
-      attendanceDays: d.attendanceDays,
-      attendanceDaysLength: d.attendanceDays?.length,
-      yearsOfExperience: d.yearsOfExperience,
-      yearsOfExperienceLength: d.yearsOfExperience?.length,
-      participantCategory: d.participantCategory,
-      participantCategoryLength: d.participantCategory?.length,
-    })
-
     const result = await query(
-      `INSERT INTO registrations (
-        registration_id, full_name, preferred_name, gender, date_of_birth,
-        mobile_number, email, residential_address, organisation,
-        region_city, years_of_experience, website_social, participant_category, other_category,
-        previous_stem, experience_level, current_programmes, expected_outcomes, application_plan,
-        attendance_days, confirm_accurate, understand_not_guaranteed, agree_participate, consent_photo,
-        payment_status, payment_reference, amount_paid
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
-      RETURNING id, registration_id`,
-      [
-        regId,
-        d.fullName, d.preferredName, d.gender, d.dateOfBirth,
-        d.mobileNumber, d.email, d.residentialAddress,
-        d.organisation, d.regionCity,
-        d.yearsOfExperience, d.websiteSocial || null,
-        d.participantCategory, d.otherCategory || null,
-        d.previousSTEM, d.experienceLevel,
-        d.currentProgrammes || null, d.expectedOutcomes, d.applicationPlan,
-        d.attendanceDays,
-        d.confirmAccurate || false, d.understandNotGuaranteed || false,
-        d.agreeParticipate || false, d.consentPhoto || false,
-        'paid', reference, amountPaid,
-      ]
+      `UPDATE registrations
+       SET payment_status = 'paid', payment_reference = $1, amount_paid = $2, updated_at = NOW()
+       WHERE registration_id = $3
+       RETURNING *`,
+      [reference, amountPaid, registrationId]
     )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Registration not found' })
+    }
+
+    const registration = result.rows[0]
 
     // Send confirmation email
     try {
       await sendConfirmationEmail({
-        ...d,
-        registration_id: regId,
+        student_full_name: registration.student_full_name,
+        parent_email: registration.parent_email,
+        registration_id: registrationId,
         amount_paid: amountPaid,
-        attendance_days: d.attendanceDays,
+        programme_type: registration.programme_type,
       })
     } catch (emailErr) {
       console.error('Email send error:', emailErr)
@@ -147,8 +108,8 @@ router.post('/verify', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Payment verified and registration saved',
-      registrationId: regId,
+      message: 'Payment verified and registration updated',
+      registrationId,
       amount: amountPaid,
     })
   } catch (err) {

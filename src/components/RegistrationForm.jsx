@@ -1,46 +1,62 @@
 import React, { useState, useCallback } from 'react'
 import { ChevronLeft, ChevronRight, AlertCircle, Loader2 } from 'lucide-react'
 import StepIndicator from './StepIndicator'
-import Step1ParticipantInfo from './steps/Step1ParticipantInfo'
-import Step2ProfessionalDetails from './steps/Step2ProfessionalDetails'
-import Step3STEMExperience from './steps/Step3STEMExperience'
-import Step4SlotBooking from './steps/Step4SlotBooking'
-import Step5Payment from './steps/Step5Payment'
-import Step6Confirmation from './steps/Step6Confirmation'
+import Step1StudentInfo from './steps/Step1StudentInfo'
+import Step2ParentInfo from './steps/Step2ParentInfo'
+import Step3EmergencyContact from './steps/Step3EmergencyContact'
+import Step4ProgrammeEnrolment from './steps/Step4ProgrammeEnrolment'
+import Step5LearningInterests from './steps/Step5LearningInterests'
+import Step6PickupAttendance from './steps/Step6PickupAttendance'
+import Step7Consent from './steps/Step7Consent'
+import Step8Payment from './steps/Step8Payment'
+import Step9Confirmation from './steps/Step9Confirmation'
 
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_aa6b6763d1c6dfe3e812692236a89386ee97cf3c'
 
-const PRICING = {
-  '17-aug-morning':   { label: '17 Aug — Morning (9:00 AM – 12:00 PM)',   price: 200, kobo: 20000 },
-  '17-aug-afternoon': { label: '17 Aug — Afternoon (1:00 PM – 3:00 PM)',  price: 200, kobo: 20000 },
-  '18-aug-morning':   { label: '18 Aug — Morning (9:00 AM – 12:00 PM)',   price: 200, kobo: 20000 },
-  '18-aug-afternoon': { label: '18 Aug — Afternoon (1:00 PM – 3:00 PM)',  price: 200, kobo: 20000 },
-}
-
 const INITIAL_DATA = {
-  fullName: '',
-  preferredName: '',
-  gender: '',
+  // Student Info
+  studentFullName: '',
   dateOfBirth: '',
-  mobileNumber: '',
-  email: '',
-  residentialAddress: '',
-  organisation: '',
-  regionCity: '',
-  yearsOfExperience: '',
-  websiteSocial: '',
-  participantCategory: '',
-  otherCategory: '',
-  previousSTEM: '',
-  experienceLevel: '',
-  currentProgrammes: '',
-  expectedOutcomes: '',
-  applicationPlan: '',
-  attendanceDays: '',
-  confirmAccurate: false,
-  understandNotGuaranteed: false,
-  agreeParticipate: false,
-  consentPhoto: false,
+  age: '',
+  gender: '',
+  school: '',
+  classGrade: '',
+  nationality: '',
+  homeAddress: '',
+  // Parent Info
+  parentFullName: '',
+  parentRelationship: '',
+  primaryPhone: '',
+  alternativePhone: '',
+  parentEmail: '',
+  parentAddress: '',
+  // Emergency
+  emergencyName: '',
+  emergencyPhone: '',
+  emergencyRelationship: '',
+  medicalNotes: '',
+  // Programme
+  programmeType: '',
+  programmeOther: '',
+  preferredStartDate: '',
+  preferredMode: '',
+  previousExperience: '',
+  // Interests
+  interests: [],
+  studentGoals: '',
+  learningPreferences: '',
+  // Pickup
+  pickupPerson1: '',
+  pickupPhone1: '',
+  pickupPerson2: '',
+  pickupPhone2: '',
+  mayLeaveAlone: false,
+  // Consent
+  consentDeclaration: false,
+  consentMedia: false,
+  consentCommunication: false,
+  // Payment
+  paymentOption: '',
 }
 
 export default function RegistrationForm({ onClose }) {
@@ -70,37 +86,44 @@ export default function RegistrationForm({ onClose }) {
     const d = data
 
     if (stepNum === 1) {
-      if (!d.fullName.trim()) errs.fullName = 'Full name is required'
-      if (!d.preferredName.trim()) errs.preferredName = 'Preferred name is required'
-      if (!d.gender) errs.gender = 'Please select gender'
+      if (!d.studentFullName.trim()) errs.studentFullName = 'Full name is required'
       if (!d.dateOfBirth) errs.dateOfBirth = 'Date of birth is required'
-      if (!d.mobileNumber.trim()) errs.mobileNumber = 'Mobile number is required'
-      if (!d.email.trim()) errs.email = 'Email is required'
-      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) errs.email = 'Enter a valid email'
-      if (!d.residentialAddress.trim()) errs.residentialAddress = 'Residential address is required'
+      if (!d.age) errs.age = 'Age is required'
+      if (!d.gender) errs.gender = 'Please select gender'
+      if (!d.school.trim()) errs.school = 'School is required'
+      if (!d.classGrade.trim()) errs.classGrade = 'Class/grade is required'
+      if (!d.nationality.trim()) errs.nationality = 'Nationality is required'
+      if (!d.homeAddress.trim()) errs.homeAddress = 'Home address is required'
     }
 
     if (stepNum === 2) {
-      if (!d.organisation.trim()) errs.organisation = 'Organisation is required'
-      if (!d.regionCity.trim()) errs.regionCity = 'Region / city is required'
-      if (!d.yearsOfExperience) errs.yearsOfExperience = 'Please select years of experience'
-      if (!d.participantCategory) errs.participantCategory = 'Please select a category'
-      if (d.participantCategory === 'other' && !d.otherCategory.trim()) {
-        errs.otherCategory = 'Please specify your category'
+      if (!d.parentFullName.trim()) errs.parentFullName = 'Parent name is required'
+      if (!d.parentRelationship.trim()) errs.parentRelationship = 'Relationship is required'
+      if (!d.primaryPhone.trim()) errs.primaryPhone = 'Primary phone is required'
+      if (d.parentEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.parentEmail)) {
+        errs.parentEmail = 'Enter a valid email'
       }
+      if (!d.parentAddress.trim()) errs.parentAddress = 'Address is required'
     }
 
     if (stepNum === 3) {
-      if (!d.previousSTEM) errs.previousSTEM = 'Please select Yes or No'
-      if (!d.experienceLevel) errs.experienceLevel = 'Please select your experience level'
-      if (!d.expectedOutcomes.trim()) errs.expectedOutcomes = 'Please tell us your expected outcomes'
-      if (!d.applicationPlan.trim()) errs.applicationPlan = 'Please describe how you intend to apply the knowledge'
+      if (!d.emergencyName.trim()) errs.emergencyName = 'Emergency name is required'
+      if (!d.emergencyPhone.trim()) errs.emergencyPhone = 'Emergency phone is required'
+      if (!d.emergencyRelationship.trim()) errs.emergencyRelationship = 'Relationship is required'
     }
 
     if (stepNum === 4) {
-      if (!d.attendanceDays) errs.attendanceDays = 'Please select an attendance option'
-      if (!d.confirmAccurate || !d.understandNotGuaranteed || !d.agreeParticipate || !d.consentPhoto) {
-        errs.declaration = 'Please check all declaration boxes to proceed'
+      if (!d.programmeType) errs.programmeType = 'Please select a programme'
+      if (d.programmeType === 'other' && !d.programmeOther.trim()) {
+        errs.programmeOther = 'Please specify the programme'
+      }
+      if (!d.preferredMode) errs.preferredMode = 'Please select preferred mode'
+      if (!d.previousExperience) errs.previousExperience = 'Please select experience level'
+    }
+
+    if (stepNum === 7) {
+      if (!d.consentDeclaration || !d.consentMedia || !d.consentCommunication) {
+        errs.declaration = 'Please accept all consent declarations'
       }
     }
 
@@ -110,7 +133,7 @@ export default function RegistrationForm({ onClose }) {
 
   const handleNext = () => {
     if (validateStep(step)) {
-      setStep((s) => Math.min(s + 1, 6))
+      setStep((s) => Math.min(s + 1, 9))
     }
   }
 
@@ -118,77 +141,120 @@ export default function RegistrationForm({ onClose }) {
     setStep((s) => Math.max(s - 1, 1))
   }
 
-  const handlePay = async () => {
-    setSubmitting(true)
-    setServerError('')
+  const handlePay = async (action, value) => {
+    if (action === 'select') {
+      setData((prev) => ({ ...prev, paymentOption: value }))
+      return
+    }
 
-    try {
-      // 1. Initialize Paystack payment (no DB save yet)
-      const payRes = await fetch('/api/payment/initialize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: data.email,
-          attendanceDays: data.attendanceDays,
-        }),
-      })
-      const payData = await payRes.json()
-
-      if (!payData.success) {
-        throw new Error(payData.error || 'Failed to initialize payment')
+    if (action === 'submit') {
+      if (!validateStep(7)) {
+        setStep(7)
+        return
       }
 
-      // 2. Open Paystack inline popup
-      setPaymentStatus('processing')
+      setSubmitting(true)
+      setServerError('')
 
-      const handler = window.PaystackPop.setup({
-        key: PAYSTACK_PUBLIC_KEY,
-        email: data.email,
-        amount: PRICING[data.attendanceDays].kobo,
-        currency: 'GHS',
-        ref: payData.reference,
-        onClose: () => {
-          setPaymentStatus('idle')
-          setSubmitting(false)
-        },
-        callback: (response) => {
-          // 3. Verify payment + save registration to DB
-          (async () => {
-            try {
-              const verifyRes = await fetch('/api/payment/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  reference: response.reference,
-                  registrationData: data,
-                }),
-              })
-              const verifyData = await verifyRes.json()
+      try {
+        if (data.paymentOption === 'pay_now') {
+          // Pay Now flow: Initialize Paystack
+          const payRes = await fetch('/api/payment/initialize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: data.parentEmail,
+            }),
+          })
+          const payData = await payRes.json()
 
-              if (verifyData.success) {
-                setRegistrationId(verifyData.registrationId)
-                setPaymentStatus('success')
-                setTimeout(() => {
-                  setStep(6)
-                }, 1000)
-              } else {
-                setServerError('Payment verification failed. Please contact support.')
-                setPaymentStatus('idle')
-              }
-            } catch (err) {
-              setServerError('Payment verification error: ' + err.message)
+          if (!payData.success) {
+            throw new Error(payData.error || 'Failed to initialize payment')
+          }
+
+          setPaymentStatus('processing')
+
+          const handler = window.PaystackPop.setup({
+            key: PAYSTACK_PUBLIC_KEY,
+            email: data.parentEmail,
+            amount: 50000, // 500 GHS in kobo
+            currency: 'GHS',
+            ref: payData.reference,
+            onClose: () => {
               setPaymentStatus('idle')
-            }
-            setSubmitting(false)
-          })()
-        },
-      })
+              setSubmitting(false)
+            },
+            callback: (response) => {
+              (async () => {
+                try {
+                  // First, save registration to DB
+                  const regRes = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                  })
+                  const regData = await regRes.json()
 
-      handler.openIframe()
-    } catch (err) {
-      setServerError(err.message)
-      setPaymentStatus('idle')
-      setSubmitting(false)
+                  if (!regData.success) {
+                    throw new Error(regData.error || 'Registration failed')
+                  }
+
+                  // Then verify payment
+                  const verifyRes = await fetch('/api/payment/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      reference: response.reference,
+                      registrationId: regData.registrationId,
+                    }),
+                  })
+                  const verifyData = await verifyRes.json()
+
+                  if (verifyData.success) {
+                    setRegistrationId(regData.registrationId)
+                    setPaymentStatus('success')
+                    setTimeout(() => {
+                      setStep(9)
+                    }, 1000)
+                  } else {
+                    setServerError('Payment verification failed. Please contact support.')
+                    setPaymentStatus('idle')
+                  }
+                } catch (err) {
+                  setServerError('Payment verification error: ' + err.message)
+                  setPaymentStatus('idle')
+                }
+                setSubmitting(false)
+              })()
+            },
+          })
+
+          handler.openIframe()
+        } else {
+          // Pay Later flow: Save registration without payment
+          const regRes = await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          })
+          const regData = await regRes.json()
+
+          if (regData.success) {
+            setRegistrationId(regData.registrationId)
+            setPaymentStatus('success')
+            setTimeout(() => {
+              setStep(9)
+            }, 1000)
+          } else {
+            setServerError(regData.error || 'Registration failed')
+          }
+          setSubmitting(false)
+        }
+      } catch (err) {
+        setServerError(err.message)
+        setPaymentStatus('idle')
+        setSubmitting(false)
+      }
     }
   }
 
@@ -202,49 +268,47 @@ export default function RegistrationForm({ onClose }) {
     setSubmitting(false)
   }
 
-  const slot = PRICING[data.attendanceDays] || { label: '', price: 0 }
-
   return (
     <div>
       {/* Header */}
-      <div className="border-b border-stone-200 px-4 sm:px-6 pt-6 pb-4">
+      <div className="border-b border-blue-200 px-4 sm:px-6 pt-6 pb-4">
         <div className="flex items-center gap-2">
-          <img src="/Appipa_logo.png" alt="" className="h-7 w-auto" />
-          <span className="text-sm font-bold text-stone-800">STEM Masterclass Registration</span>
+          <img src="/BTL_Logo.png" alt="" className="h-7 w-auto" />
+          <span className="text-sm font-bold text-blue-900">BTL Student Admission</span>
         </div>
       </div>
 
       {/* Step Indicator */}
-      <div className="border-b border-stone-100 px-4 sm:px-6 py-4">
-        <StepIndicator currentStep={step} />
+      <div className="border-b border-blue-100 px-4 sm:px-6 py-4">
+        <StepIndicator currentStep={step} totalSteps={9} />
       </div>
 
       {/* Form Content */}
       <div className="max-h-[55vh] sm:max-h-[60vh] overflow-y-auto px-4 sm:px-6 py-6">
-        {step === 1 && <Step1ParticipantInfo data={data} errors={errors} onChange={handleChange} />}
-        {step === 2 && <Step2ProfessionalDetails data={data} errors={errors} onChange={handleChange} />}
-        {step === 3 && <Step3STEMExperience data={data} errors={errors} onChange={handleChange} />}
-        {step === 4 && <Step4SlotBooking data={data} errors={errors} onChange={handleChange} />}
-        {step === 5 && (
-          <Step5Payment
+        {step === 1 && <Step1StudentInfo data={data} errors={errors} onChange={handleChange} />}
+        {step === 2 && <Step2ParentInfo data={data} errors={errors} onChange={handleChange} />}
+        {step === 3 && <Step3EmergencyContact data={data} errors={errors} onChange={handleChange} />}
+        {step === 4 && <Step4ProgrammeEnrolment data={data} errors={errors} onChange={handleChange} />}
+        {step === 5 && <Step5LearningInterests data={data} errors={errors} onChange={handleChange} />}
+        {step === 6 && <Step6PickupAttendance data={data} errors={errors} onChange={handleChange} />}
+        {step === 7 && <Step7Consent data={data} errors={errors} onChange={handleChange} />}
+        {step === 8 && (
+          <Step8Payment
             data={data}
-            slot={slot}
             onPay={handlePay}
             paymentStatus={paymentStatus}
             serverError={serverError}
           />
         )}
-        {step === 6 && (
-          <Step6Confirmation
+        {step === 9 && (
+          <Step9Confirmation
             data={data}
             registrationId={registrationId}
-            onReset={handleReset}
-            onClose={onClose}
           />
         )}
 
         {/* Error banner */}
-        {Object.values(errors).some(e => e && e !== '') && step < 5 && (
+        {Object.values(errors).some(e => e && e !== '') && step < 8 && (
           <div className="mt-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-600">
             <AlertCircle className="h-4 w-4 shrink-0" />
             Please fix the highlighted fields before continuing.
@@ -253,8 +317,8 @@ export default function RegistrationForm({ onClose }) {
       </div>
 
       {/* Navigation Buttons */}
-      {step < 6 && (
-        <div className="flex items-center justify-between border-t border-stone-200 px-4 sm:px-6 py-4">
+      {step < 9 && (
+        <div className="flex items-center justify-between border-t border-blue-200 px-4 sm:px-6 py-4">
           <button
             type="button"
             onClick={handlePrev}
@@ -265,13 +329,22 @@ export default function RegistrationForm({ onClose }) {
             Back
           </button>
 
-          {step < 5 ? (
+          {step < 7 ? (
             <button
               type="button"
               onClick={handleNext}
-              className="flex items-center gap-1.5 rounded-lg bg-stone-900 px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-stone-800"
+              className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-blue-700"
             >
               Continue
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          ) : step === 7 ? (
+            <button
+              type="button"
+              onClick={() => setStep(8)}
+              className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-blue-700"
+            >
+              Continue to Payment
               <ChevronRight className="h-4 w-4" />
             </button>
           ) : (
@@ -279,10 +352,10 @@ export default function RegistrationForm({ onClose }) {
               {paymentStatus === 'processing' ? (
                 <span className="flex items-center gap-1.5">
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  Processing payment...
+                  Processing...
                 </span>
               ) : (
-                'Complete payment to confirm your booking'
+                'Complete registration'
               )}
             </span>
           )}
