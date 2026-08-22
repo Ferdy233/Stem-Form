@@ -29,8 +29,11 @@ export async function query(text, params) {
 
 export async function initDB() {
   try {
+    // Drop existing table to recreate with new schema
+    await query(`DROP TABLE IF EXISTS registrations CASCADE;`)
+    
     await query(`
-      CREATE TABLE IF NOT EXISTS registrations (
+      CREATE TABLE registrations (
         id SERIAL PRIMARY KEY,
         registration_id VARCHAR(50) UNIQUE NOT NULL,
         -- Student Information
@@ -46,7 +49,7 @@ export async function initDB() {
         parent_full_name VARCHAR(255) NOT NULL,
         parent_relationship VARCHAR(100) NOT NULL,
         primary_phone VARCHAR(30) NOT NULL, alternative_phone VARCHAR(30),
-        parent_email VARCHAR(255) NOT NULL,
+        parent_email VARCHAR(255),
         parent_address TEXT NOT NULL,
         -- Emergency Contact
         emergency_name VARCHAR(255) NOT NULL,
