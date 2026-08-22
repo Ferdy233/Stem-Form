@@ -29,9 +29,11 @@ export async function query(text, params) {
 
 export async function initDB() {
   try {
-    // Drop existing table to recreate with new schema
+    console.log('Dropping existing registrations table...')
     await query(`DROP TABLE IF EXISTS registrations CASCADE;`)
+    console.log('Table dropped successfully')
     
+    console.log('Creating new registrations table with BTL schema...')
     await query(`
       CREATE TABLE registrations (
         id SERIAL PRIMARY KEY,
@@ -48,7 +50,8 @@ export async function initDB() {
         -- Parent / Guardian Information
         parent_full_name VARCHAR(255) NOT NULL,
         parent_relationship VARCHAR(100) NOT NULL,
-        primary_phone VARCHAR(30) NOT NULL, alternative_phone VARCHAR(30),
+        primary_phone VARCHAR(30) NOT NULL, 
+        alternative_phone VARCHAR(30),
         parent_email VARCHAR(255),
         parent_address TEXT NOT NULL,
         -- Emergency Contact
@@ -86,6 +89,9 @@ export async function initDB() {
         updated_at TIMESTAMP DEFAULT NOW()
       );
     `)
+    console.log('Table created successfully')
+    
+    console.log('Creating indexes...')
     await query(`CREATE INDEX IF NOT EXISTS idx_registrations_email ON registrations(parent_email);`)
     await query(`CREATE INDEX IF NOT EXISTS idx_registrations_registration_id ON registrations(registration_id);`)
     await query(`CREATE INDEX IF NOT EXISTS idx_registrations_payment_status ON registrations(payment_status);`)
@@ -93,6 +99,7 @@ export async function initDB() {
     console.log('Database initialized successfully')
   } catch (err) {
     console.error('Database init error:', err.message)
+    throw err
   }
 }
 
